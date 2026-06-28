@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Inkshed</title>
+    <!-- External CSS & fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+    <div class="scene">
+        <div class="desk"></div>
+        <img src="assets/vinyl-player.png" class="vinyl-player" id="vinylPlayer" alt="Vinyl">
+        <div class="paper-stage" id="paperStage">
+            <div class="paper" id="paper">
+                <div class="photo-layer" id="photoLayer"></div>
+                <div class="vintage-overlay"></div>
+                <canvas class="paint-canvas" id="paintCanvas"></canvas>
+                <div class="candle-glow-overlay" id="candleGlow"></div>
+                <div id="paperContent" class="paper-content" contenteditable="false"></div>
+            </div>
+            <div class="undo-redo-container">
+                <div class="undo-btn" id="undoBtn" title="Undo paint / photo">↩</div>
+                <div class="redo-btn" id="redoBtn" title="Redo paint / photo">↪</div>
+            </div>
+        </div>
+
+        <!-- Tools -->
+        <!-- Quill -->
+        <div class="tool-wrapper" id="toolQuillWrap" style="top:170px; right:350px; width:60px; transform:rotate(45deg);">
+            <img src="assets/quill.svg" class="tool-img active" id="toolQuillImg" alt="Quill">
+        </div>
+        <!-- Brush -->
+        <div class="tool-wrapper" id="toolBrushWrap" style="top:330px; right:260px; width:170px; transform:rotate(25deg);">
+            <img src="assets/brush.png" class="tool-img" id="toolBrushImg" alt="Brush">
+        </div>
+        <!-- Ink -->
+        <div class="tool-wrapper" id="toolInkWrap" style="top:50px; right:400px; width:65px; transform:rotate(-5deg);">
+            <img src="assets/ink.svg" class="tool-img" id="toolInkImg" alt="Ink">
+        </div>
+        <!-- Bomb -->
+        <div class="tool-wrapper" id="toolBombWrap" style="top:190px; left:200px; width:120px; transform:rotate(-30deg);">
+            <img src="assets/bomb.png" class="tool-img" id="toolBombImg" alt="Bomb">
+        </div>
+        <!-- Candle -->
+        <div class="tool-wrapper" id="toolCandleWrap" style="top:475px; left:100px; width:70px; transform:rotate(0deg);">
+            <img src="assets/candle.png" class="tool-img" id="toolCandleImg" alt="Candle">
+        </div>
+        <!-- Gun -->
+        <div class="tool-wrapper" id="toolGunWrap" style="top:480px; right:180px; width:400px; transform:rotate(-10deg);">
+            <img src="assets/Gun.png" class="tool-img" id="toolGunImg" alt="Gun">
+        </div>
+        <!-- Album -->
+        <div class="tool-wrapper" id="albumToolWrap" style="bottom:450px; left:-70px; width:300px; transform:rotate(35deg);">
+            <img src="assets/album.png" class="tool-img" id="albumToolImg" alt="Album">
+        </div>
+        <!-- Envelope -->
+        <div class="tool-wrapper" id="envelopeWrap" style="bottom:-80px; right:-60px; width:270px; transform:rotate(-5deg);">
+            <img src="assets/envelope.png" class="tool-img" alt="Envelope">
+        </div>
+
+        <div class="brush-size-popup" id="brushSizePopup">
+            <span style="font-size:0.8rem;">Brush size</span>
+            <input type="range" id="brushSizeSlider" min="2" max="40" value="8">
+        </div>
+        <input type="color" id="inkColorPicker" value="#2b1e10" style="position:absolute;opacity:0;width:0;height:0;">
+        <input type="file" id="photoPicker" accept="image/*" style="display:none;">
+        <div class="ui-message" id="uiMessage"></div>
+        <button class="sound-toggle" id="soundToggle">🔊</button>
+    </div>
+
+    <!-- Share overlay -->
+    <div class="share-overlay" id="shareOverlay">
+        <div class="share-modal">
+            <h3>Share Your Thoughts</h3>
+            <div class="share-buttons">
+                <button class="share-btn" id="shareX">
+                    <i class="fab fa-x-twitter"></i> Twitter
+                </button>
+                <button class="share-btn" id="shareInstagram">
+                    <i class="fab fa-instagram"></i> Instagram
+                </button>
+                <button class="share-btn" id="shareFacebook">
+                    <i class="fab fa-facebook"></i> Facebook
+                </button>
+                <button class="share-btn" id="downloadPNG">
+                    <i class="fas fa-download"></i> Download as PNG
+                </button>
+            </div>
+            <button class="close-share-btn" id="closeShare">Close</button>
+        </div>
+    </div>
+
+    <!-- Music menu -->
+    <div class="music-menu-overlay" id="musicMenuOverlay">
+        <div class="music-menu">
+            <h2>Choose your atmosphere</h2>
+            <button class="music-track" data-file="bird-chirp.mp3">🎵 Bird Chirping</button>
+            <button class="music-track" data-file="rain-fall.mp3">🎵 Rain Fall</button>
+            <button class="music-track" data-file="dark-academia.mp3">🎵 Dark Academia</button>
+            <button class="music-track" data-file="horror-vibes.mp3">🎵 Eerie Vibes</button>
+            <button class="music-track" data-file="none">🔇 No music</button>
+            <div class="volume-container">
+                <span class="volume-icon">🔊</span>
+                <input type="range" id="bgVolumeSlider" class="volume-slider" min="0" max="100" value="40">
+            </div>
+            <button class="close-menu-btn" id="closeMusicMenu">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
